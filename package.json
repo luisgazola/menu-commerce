@@ -1,0 +1,17 @@
+{
+  "name": "menu-commerce",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.13.1",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @menu-commerce/api --filter @menu-commerce/web dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "db:up": "docker compose up -d postgres mongodb redis",
+    "db:down": "docker compose down",
+    "api:prisma:generate": "pnpm --filter @menu-commerce/api prisma:generate",
+    "api:prisma:migrate": "pnpm --filter @menu-commerce/api prisma:migrate",
+    "api:seed": "pnpm --filter @menu-commerce/api seed"
+  }
+}
