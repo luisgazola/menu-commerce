@@ -1,6 +1,6 @@
 {
   "name": "@menu-commerce/api",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "scripts": {
     "dev": "nest start --watch",
@@ -9,7 +9,7 @@
     "lint": "eslint \"src/**/*.ts\"",
     "test": "jest",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev --name catalog_v0_2_0",
+    "prisma:migrate": "prisma migrate dev --name cart_v0_3_0",
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
