@@ -1,30 +1,19 @@
-# MenuCommerce v0.1.0
+# MenuCommerce v0.2.0
 
-Fundação do cardápio online: monorepo TypeScript, API NestJS, interface Next.js, PostgreSQL, MongoDB, Redis, autenticação administrativa e cadastro inicial da empresa.
+Cardápio online responsivo e painel administrativo construídos com TypeScript, Next.js, NestJS, PostgreSQL, Prisma, MongoDB e Redis.
 
-## Entregas desta versão
+## Funcionalidades desta versão
+- Login administrativo JWT.
+- Empresa e loja.
+- Categorias.
+- Produtos, preço promocional e imagens por URL.
+- Grupos de opções e adicionais.
+- Pesquisa pública.
+- Cardápio responsivo.
+- Painel administrativo inicial.
+- Swagger.
 
-- Monorepo com pnpm workspaces.
-- API REST versionada em `/api/v1`.
-- Swagger em `/docs`.
-- Autenticação administrativa com JWT.
-- Senhas protegidas com Argon2.
-- Perfis `ADMIN`, `MANAGER` e `OPERATOR`.
-- Cadastro e consulta da empresa.
-- PostgreSQL como fonte transacional.
-- MongoDB preparado para auditoria e históricos futuros.
-- Redis preparado para cache, filas e idempotência futura.
-- Next.js com tela inicial e formulário de login.
-- Docker Compose para os serviços de infraestrutura.
-- Seed do primeiro administrador.
-
-## Pré-requisitos
-
-- Node.js 22 ou superior.
-- pnpm 10 ou superior.
-- Docker com Docker Compose.
-
-## Inicialização
+## Instalação
 
 ```bash
 cp .env.example .env
@@ -37,21 +26,21 @@ pnpm dev
 ```
 
 Acessos:
-
-- Web: http://localhost:3000
+- Cardápio: http://localhost:3000
+- Administração: http://localhost:3000/admin
 - API: http://localhost:3001/api/v1
 - Swagger: http://localhost:3001/docs
 
-Credenciais iniciais definidas no `.env`:
+Login local:
+- E-mail: `admin@local.test`
+- Senha: `Admin@123456`
 
-```text
-admin@local.test
-Admin@123456
+## Endpoint público
+
+```http
+GET /api/v1/catalog/demo
+GET /api/v1/catalog/demo?search=bacon
 ```
 
-Troque a senha imediatamente em ambientes reais.
-
-## Limites da v0.1.0
-
-Esta versão ainda não possui catálogo, produtos, carrinho, pedidos, cupons ou integração de pagamentos. Esses recursos começam nas versões seguintes.
-# menu-commerce
+## Próxima versão
+A versão 0.3.0 adicionará carrinho, quantidades, seleção real de adicionais, observações e persistência local.
