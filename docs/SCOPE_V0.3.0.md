@@ -1,4 +1,4 @@
-# Escopo — MenuCommerce v0.3.0
+# Escopo — MenuCommerce v0.4.0
 
 ## Objetivo
 
