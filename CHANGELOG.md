@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.0] - 2026-07-29
+## [0.4.0] - 2026-07-29
 
 ### Adicionado
 - Carrinho lateral responsivo no cardápio público.
@@ -16,7 +16,7 @@
 - Utilitários TypeScript isolados para cálculos do carrinho.
 
 ### Alterado
-- Versões do monorepo, API, Swagger e interface para 0.3.0.
+- Versões do monorepo, API, Swagger e interface para 0.4.0.
 - Botões de produtos agora abrem a personalização e adicionam itens ao carrinho.
 
 ### Segurança e regra de negócio

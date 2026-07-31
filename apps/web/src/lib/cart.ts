@@ -1,4 +1,4 @@
-export const CART_STORAGE_KEY = 'menucommerce.cart.v0.3.0';
+export const CART_STORAGE_KEY = 'menucommerce.cart.v0.4.0';
 
 export type CartOption = {
   groupId: string;

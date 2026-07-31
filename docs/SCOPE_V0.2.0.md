@@ -10,7 +10,7 @@
 - Administração inicial protegida por JWT.
 
 ## Fora do escopo
-- Carrinho e cálculo de itens: versão 0.3.0.
+- Carrinho e cálculo de itens: versão 0.4.0.
 - Checkout e pedidos: versão 0.4.0.
 - Cupons e promoções avançadas: versão 0.5.0.
 - Upload binário de imagens: nesta versão são usadas URLs.
