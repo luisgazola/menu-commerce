@@ -60,3 +60,20 @@ fieldset>small { color:#a99fb3; margin-bottom:7px; }
   .stepper { justify-self:start; }
   .floating-cart { flex-direction:column; align-items:stretch; gap:3px; text-align:left; }
 }
+
+/* Checkout e pedidos — v0.4.0 */
+.checkout-form,.address-fields { display:grid; gap:14px; }
+.checkout-modal { width:min(760px,100%); }
+.service-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.checkout-summary { display:grid; grid-template-columns:1fr auto; gap:6px 18px; border:1px solid #40344b; border-radius:14px; padding:16px; background:#120f16; }
+.checkout-summary small { grid-column:1/-1; color:#a99fad; }
+.order-success { text-align:center; display:grid; gap:16px; }
+.order-success h2,.order-success p { margin:0; }
+.order-link { display:block; border:1px solid #8f70ff; border-radius:11px; padding:12px; text-decoration:none; }
+.timeline { display:grid; gap:12px; margin-top:16px; }
+.timeline>div { display:grid; gap:4px; border-left:3px solid #8f70ff; padding-left:14px; }
+.timeline small,.order-card small { display:block; color:#aaa1b2; margin-top:4px; }
+.orders-board { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.order-card { margin:0; }
+.order-card p { color:#bcb4c5; }
+@media(max-width:700px){.service-options,.orders-board{grid-template-columns:1fr}.checkout-modal .two{grid-template-columns:1fr}}

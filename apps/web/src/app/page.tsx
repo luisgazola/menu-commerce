@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { API_URL, STORE_SLUG, money } from '../lib/api';
 import {
   CART_STORAGE_KEY,
@@ -60,6 +60,10 @@ export default function HomePage() {
   const [selection, setSelection] = useState<ProductSelection | null>(null);
   const [selectionError, setSelectionError] = useState('');
   const [hydrated, setHydrated] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [orderResult, setOrderResult] = useState<{ orderNumber: string; total: string } | null>(null);
+  const [checkout, setCheckout] = useState({ name: '', phone: '', email: '', serviceType: 'PICKUP', postalCode: '', street: '', number: '', complement: '', district: '', city: '', state: 'SP', reference: '', notes: '' });
 
   useEffect(() => {
     try {
@@ -189,6 +193,44 @@ export default function HomePage() {
     setCart((current) => current.filter((item) => item.key !== key));
   }
 
+  async function submitOrder(event: FormEvent) {
+    event.preventDefault();
+    if (cart.length === 0) return;
+    setSubmitting(true);
+    setError('');
+    try {
+      const delivery = checkout.serviceType === 'DELIVERY';
+      const response = await fetch(`${API_URL}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          storeSlug: STORE_SLUG,
+          customer: { name: checkout.name, phone: checkout.phone, email: checkout.email || undefined },
+          serviceType: checkout.serviceType,
+          address: delivery ? {
+            postalCode: checkout.postalCode, street: checkout.street, number: checkout.number,
+            complement: checkout.complement || undefined, district: checkout.district,
+            city: checkout.city, state: checkout.state, reference: checkout.reference || undefined
+          } : undefined,
+          notes: checkout.notes || undefined,
+          items: cart.map((item) => ({
+            productId: item.productId, quantity: item.quantity, notes: item.notes || undefined,
+            optionItemIds: item.options.map((option) => option.itemId)
+          }))
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(Array.isArray(data.message) ? data.message.join(', ') : data.message ?? 'Não foi possível criar o pedido.');
+      setOrderResult({ orderNumber: data.orderNumber, total: data.total });
+      setCart([]);
+      localStorage.removeItem(CART_STORAGE_KEY);
+      setCheckoutOpen(false);
+      setCartOpen(false);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Erro ao criar o pedido.');
+    } finally { setSubmitting(false); }
+  }
+
   const selectionPreview = selection
     ? itemUnitTotal({ unitPrice: baseProductPrice(selection.product), options: selectedOptions(selection) }) * selection.quantity
     : 0;
@@ -196,7 +238,7 @@ export default function HomePage() {
   return <main className="menu-shell">
     <header className="menu-header">
       <div>
-        <span className="version">v0.3.0</span>
+        <span className="version">v0.4.0</span>
         <h1>{menu?.store.name ?? 'MenuCommerce'}</h1>
         <p>{menu?.store.description ?? 'Cardápio online responsivo'}</p>
       </div>
@@ -316,12 +358,32 @@ export default function HomePage() {
           <footer className="cart-footer">
             <div><span>Itens</span><strong>{totalQuantity}</strong></div>
             <div className="subtotal"><span>Subtotal</span><strong>{money(subtotal)}</strong></div>
-            <button disabled title="Checkout será implementado na v0.4.0">Continuar para identificação</button>
+            <button onClick={() => { setCartOpen(false); setCheckoutOpen(true); }}>Continuar para identificação</button>
             <small>O carrinho permanece salvo neste navegador.</small>
           </footer>
         </>}
       </aside>
     </div>}
+
+
+    {checkoutOpen && <div className="overlay" role="presentation" onMouseDown={() => setCheckoutOpen(false)}>
+      <section className="modal checkout-modal" role="dialog" aria-modal="true" aria-label="Finalizar pedido" onMouseDown={(event) => event.stopPropagation()}>
+        <button className="close" onClick={() => setCheckoutOpen(false)} aria-label="Fechar">×</button>
+        <span className="version">Checkout v0.4.0</span><h2>Identificação e atendimento</h2>
+        <form onSubmit={submitOrder} className="checkout-form">
+          <div className="two"><label>Nome<input required value={checkout.name} onChange={e=>setCheckout({...checkout,name:e.target.value})}/></label><label>WhatsApp<input required value={checkout.phone} onChange={e=>setCheckout({...checkout,phone:e.target.value})} placeholder="(12) 99999-9999"/></label></div>
+          <label>E-mail opcional<input type="email" value={checkout.email} onChange={e=>setCheckout({...checkout,email:e.target.value})}/></label>
+          <fieldset><legend>Como deseja receber?</legend><div className="service-options"><label className="option"><input type="radio" checked={checkout.serviceType==='PICKUP'} onChange={()=>setCheckout({...checkout,serviceType:'PICKUP'})}/><span>Retirada no local</span></label><label className="option"><input type="radio" checked={checkout.serviceType==='DELIVERY'} onChange={()=>setCheckout({...checkout,serviceType:'DELIVERY'})}/><span>Entrega</span><strong>+ {money(5)}</strong></label></div></fieldset>
+          {checkout.serviceType==='DELIVERY' && <div className="address-fields"><div className="two"><label>CEP<input required value={checkout.postalCode} onChange={e=>setCheckout({...checkout,postalCode:e.target.value})}/></label><label>Estado<input required maxLength={2} value={checkout.state} onChange={e=>setCheckout({...checkout,state:e.target.value.toUpperCase()})}/></label></div><label>Rua<input required value={checkout.street} onChange={e=>setCheckout({...checkout,street:e.target.value})}/></label><div className="two"><label>Número<input required value={checkout.number} onChange={e=>setCheckout({...checkout,number:e.target.value})}/></label><label>Complemento<input value={checkout.complement} onChange={e=>setCheckout({...checkout,complement:e.target.value})}/></label></div><div className="two"><label>Bairro<input required value={checkout.district} onChange={e=>setCheckout({...checkout,district:e.target.value})}/></label><label>Cidade<input required value={checkout.city} onChange={e=>setCheckout({...checkout,city:e.target.value})}/></label></div><label>Referência<input value={checkout.reference} onChange={e=>setCheckout({...checkout,reference:e.target.value})}/></label></div>}
+          <label>Observações gerais<textarea maxLength={300} value={checkout.notes} onChange={e=>setCheckout({...checkout,notes:e.target.value})}/></label>
+          {error && <p className="error">{error}</p>}
+          <div className="checkout-summary"><span>Subtotal calculado no navegador</span><strong>{money(subtotal)}</strong><small>O servidor recalculará produtos e adicionais antes de confirmar.</small></div>
+          <button disabled={submitting}>{submitting ? 'Criando pedido...' : 'Confirmar pedido'}</button>
+        </form>
+      </section>
+    </div>}
+
+    {orderResult && <div className="overlay"><section className="modal order-success"><span className="version">Pedido confirmado</span><h2>Pedido #{orderResult.orderNumber}</h2><p>Total validado pelo servidor: <strong>{money(orderResult.total)}</strong></p><a className="order-link" href={`/pedido/${orderResult.orderNumber}`}>Acompanhar pedido</a><button onClick={()=>setOrderResult(null)}>Voltar ao cardápio</button></section></div>}
 
     {cart.length > 0 && !cartOpen && <button className="floating-cart" onClick={() => setCartOpen(true)}>
       <span>{totalQuantity} {totalQuantity === 1 ? 'item' : 'itens'}</span><strong>Ver carrinho · {money(subtotal)}</strong>

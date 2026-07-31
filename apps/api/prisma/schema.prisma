@@ -52,6 +52,7 @@ model Store {
   status      RecordStatus @default(ACTIVE)
   categories  Category[]
   products    Product[]
+  orders      Order[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
@@ -142,4 +143,101 @@ model ProductOptionItem {
   updatedAt    DateTime     @updatedAt
 
   @@index([groupId, displayOrder, status])
+}
+
+enum ServiceType {
+  DELIVERY
+  PICKUP
+}
+
+enum OrderStatus {
+  RECEIVED
+  CONFIRMED
+  PREPARING
+  READY
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+model Customer {
+  id        String    @id @default(uuid())
+  name      String
+  phone     String
+  email     String?
+  orders    Order[]
+  addresses Address[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([phone])
+}
+
+model Address {
+  id         String   @id @default(uuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  postalCode String
+  street     String
+  number     String
+  complement String?
+  district   String
+  city       String
+  state      String
+  reference  String?
+  orders     Order[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Order {
+  id          String       @id @default(uuid())
+  storeId     String
+  store       Store        @relation(fields: [storeId], references: [id], onDelete: Restrict)
+  customerId  String
+  customer    Customer     @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  addressId   String?
+  address     Address?     @relation(fields: [addressId], references: [id], onDelete: SetNull)
+  orderNumber String       @unique
+  serviceType ServiceType
+  status      OrderStatus  @default(RECEIVED)
+  subtotal    Decimal      @db.Decimal(10, 2)
+  deliveryFee Decimal      @default(0) @db.Decimal(10, 2)
+  total       Decimal      @db.Decimal(10, 2)
+  notes       String?
+  items       OrderItem[]
+  statusLog   OrderStatusHistory[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([storeId, status, createdAt])
+  @@index([customerId, createdAt])
+}
+
+model OrderItem {
+  id                  String   @id @default(uuid())
+  orderId             String
+  order               Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId           String
+  productNameSnapshot String
+  unitPrice            Decimal  @db.Decimal(10, 2)
+  quantity             Int
+  optionsTotal         Decimal  @default(0) @db.Decimal(10, 2)
+  totalPrice           Decimal  @db.Decimal(10, 2)
+  notes                String?
+  options              Json
+  createdAt            DateTime @default(now())
+
+  @@index([orderId])
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(uuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  note      String?
+  createdAt DateTime    @default(now())
+
+  @@index([orderId, createdAt])
 }
