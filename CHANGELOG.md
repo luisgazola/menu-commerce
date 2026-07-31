@@ -1,6 +1,17 @@
 # Changelog
 
-## [0.4.1] - 2026-07-29
+## [0.5.0] - 2026-07-29
+
+### Adicionado
+
+- Cupons percentuais, fixos e de frete grátis.
+- Validade, pedido mínimo, desconto máximo e limites de uso.
+- Restrição de primeira compra.
+- Registro transacional do uso do cupom.
+- Painel administrativo de cupons e estrutura de promoções.
+- Desconto e código do cupom registrados no pedido.
+
+## [0.4.0] - 2026-07-29
 
 ### Adicionado
 - Carrinho lateral responsivo no cardápio público.
@@ -16,7 +27,7 @@
 - Utilitários TypeScript isolados para cálculos do carrinho.
 
 ### Alterado
-- Versões do monorepo, API, Swagger e interface para 0.4.1.
+- Versões do monorepo, API, Swagger e interface para 0.4.0.
 - Botões de produtos agora abrem a personalização e adicionam itens ao carrinho.
 
 ### Segurança e regra de negócio

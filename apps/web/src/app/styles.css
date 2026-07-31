@@ -61,7 +61,7 @@ fieldset>small { color:#a99fb3; margin-bottom:7px; }
   .floating-cart { flex-direction:column; align-items:stretch; gap:3px; text-align:left; }
 }
 
-/* Checkout e pedidos — v0.4.1 */
+/* Checkout e pedidos — v0.4.0 */
 .checkout-form,.address-fields { display:grid; gap:14px; }
 .checkout-modal { width:min(760px,100%); }
 .service-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
@@ -77,3 +77,4 @@ fieldset>small { color:#a99fb3; margin-bottom:7px; }
 .order-card { margin:0; }
 .order-card p { color:#bcb4c5; }
 @media(max-width:700px){.service-options,.orders-board{grid-template-columns:1fr}.checkout-modal .two{grid-template-columns:1fr}}
+.coupon-row{display:grid;grid-template-columns:1fr auto;gap:.75rem}.coupon-row button{width:auto}.success-text{color:#15803d;font-weight:700}

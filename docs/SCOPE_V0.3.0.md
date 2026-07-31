@@ -1,4 +1,4 @@
-# Escopo — MenuCommerce v0.4.1
+# Escopo — MenuCommerce v0.4.0
 
 ## Objetivo
 
@@ -26,7 +26,7 @@ Transformar o catálogo da v0.2.0 em uma experiência real de montagem de pedido
 - Componentes sem dependências adicionais.
 - Estado persistido somente no navegador.
 - Nenhuma credencial ou dado de pagamento salvo no `localStorage`.
-- Preparação para validação autoritativa do servidor na v0.4.1.
+- Preparação para validação autoritativa do servidor na v0.4.0.
 
 ## Fora do escopo
 
