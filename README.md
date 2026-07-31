@@ -1,4 +1,4 @@
-# MenuCommerce v0.4.0
+# MenuCommerce v0.4.1
 
 Cardápio online responsivo com catálogo, personalização de produtos e carrinho local, construído com TypeScript, Next.js, NestJS, PostgreSQL, Prisma, MongoDB e Redis.
 
@@ -48,15 +48,15 @@ GET /api/v1/catalog/demo
 GET /api/v1/catalog/demo?search=bacon
 ```
 
-## Limite arquitetural da v0.4.0
+## Limite arquitetural da v0.4.1
 
-O carrinho é local e serve à experiência de montagem do pedido. A v0.4.0 enviará os itens ao servidor, que deverá consultar novamente os produtos e recalcular todos os valores antes de criar o pedido. O back-end nunca deverá confiar em preços recebidos do navegador.
+O carrinho é local e serve à experiência de montagem do pedido. A v0.4.1 enviará os itens ao servidor, que deverá consultar novamente os produtos e recalcular todos os valores antes de criar o pedido. O back-end nunca deverá confiar em preços recebidos do navegador.
 
 ## Próxima versão
 
-A versão 0.4.0 adicionará identificação do cliente, endereço, entrega ou retirada, criação do pedido e painel operacional de pedidos.
+A versão 0.4.1 adicionará identificação do cliente, endereço, entrega ou retirada, criação do pedido e painel operacional de pedidos.
 
-## Novidades da v0.4.0
+## Novidades da v0.4.1
 
 - Checkout com identificação do cliente.
 - Entrega ou retirada.

@@ -1,9 +1,9 @@
-# Atualização da v0.3.0 para v0.4.0
+# Atualização da v0.3.0 para v0.4.1
 
 ```bash
 git checkout develop
 git pull origin develop
-git checkout -b feature/orders-v0.4.0
+git checkout -b feature/orders-v0.4.1
 
 pnpm install
 pnpm api:prisma:generate

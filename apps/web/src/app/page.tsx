@@ -238,7 +238,7 @@ export default function HomePage() {
   return <main className="menu-shell">
     <header className="menu-header">
       <div>
-        <span className="version">v0.4.0</span>
+        <span className="version">v0.4.1</span>
         <h1>{menu?.store.name ?? 'MenuCommerce'}</h1>
         <p>{menu?.store.description ?? 'Cardápio online responsivo'}</p>
       </div>
@@ -369,7 +369,7 @@ export default function HomePage() {
     {checkoutOpen && <div className="overlay" role="presentation" onMouseDown={() => setCheckoutOpen(false)}>
       <section className="modal checkout-modal" role="dialog" aria-modal="true" aria-label="Finalizar pedido" onMouseDown={(event) => event.stopPropagation()}>
         <button className="close" onClick={() => setCheckoutOpen(false)} aria-label="Fechar">×</button>
-        <span className="version">Checkout v0.4.0</span><h2>Identificação e atendimento</h2>
+        <span className="version">Checkout v0.4.1</span><h2>Identificação e atendimento</h2>
         <form onSubmit={submitOrder} className="checkout-form">
           <div className="two"><label>Nome<input required value={checkout.name} onChange={e=>setCheckout({...checkout,name:e.target.value})}/></label><label>WhatsApp<input required value={checkout.phone} onChange={e=>setCheckout({...checkout,phone:e.target.value})} placeholder="(12) 99999-9999"/></label></div>
           <label>E-mail opcional<input type="email" value={checkout.email} onChange={e=>setCheckout({...checkout,email:e.target.value})}/></label>
