@@ -13,6 +13,10 @@ async function main(): Promise<void> {
     await prisma.productOptionGroup.create({ data: { productId: burger.id, name: 'Adicionais', type: ProductOptionType.MULTIPLE, maximumSelection: 3, items: { create: [{ name: 'Bacon extra', additionalPrice: 4, displayOrder: 1 }, { name: 'Queijo extra', additionalPrice: 3, displayOrder: 2 }, { name: 'Ovo', additionalPrice: 2.5, displayOrder: 3 }] } } });
   }
   await prisma.product.upsert({ where: { storeId_slug: { storeId: store.id, slug: 'refrigerante-lata' } }, update: {}, create: { storeId: store.id, categoryId: drinks.id, name: 'Refrigerante lata', slug: 'refrigerante-lata', description: '350 ml, escolha o sabor no atendimento.', price: 6, imageUrl: 'https://images.unsplash.com/photo-1581636625402-29b2a704ef13?auto=format&fit=crop&w=900&q=80' } });
+  const now = new Date();
+  const endsAt = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+  await prisma.coupon.upsert({ where: { storeId_code: { storeId: store.id, code: 'BEMVINDO10' } }, update: {}, create: { storeId: store.id, code: 'BEMVINDO10', description: '10% na primeira compra, limitado a R$ 15,00.', discountType: 'PERCENTAGE', discountValue: 10, minimumOrder: 20, maximumDiscount: 15, startsAt: now, endsAt, usagePerCustomer: 1, firstOrderOnly: true } });
+  await prisma.coupon.upsert({ where: { storeId_code: { storeId: store.id, code: 'FRETEGRATIS' } }, update: {}, create: { storeId: store.id, code: 'FRETEGRATIS', description: 'Frete grátis em pedidos acima de R$ 40,00.', discountType: 'FREE_DELIVERY', discountValue: 0, minimumOrder: 40, startsAt: now, endsAt, usagePerCustomer: 3 } });
   console.log({ companyId: company.id, storeId: store.id, login: 'admin@local.test', password: 'Admin@123456' });
 }
 main().finally(() => prisma.$disconnect());

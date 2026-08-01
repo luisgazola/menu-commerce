@@ -1,4 +1,4 @@
-# MenuCommerce v0.4.1 — Pedidos e Checkout
+# MenuCommerce v0.4.0 — Pedidos e Checkout
 
 ## Entregas
 
