@@ -61,6 +61,9 @@ export default function HomePage() {
   const [selectionError, setSelectionError] = useState('');
   const [hydrated, setHydrated] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [couponResult, setCouponResult] = useState<{code:string;discount:string;freeDelivery:boolean;description?:string}|null>(null);
+  const [couponMessage, setCouponMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [orderResult, setOrderResult] = useState<{ orderNumber: string; total: string } | null>(null);
   const [checkout, setCheckout] = useState({ name: '', phone: '', email: '', serviceType: 'PICKUP', postalCode: '', street: '', number: '', complement: '', district: '', city: '', state: 'SP', reference: '', notes: '' });
@@ -193,6 +196,17 @@ export default function HomePage() {
     setCart((current) => current.filter((item) => item.key !== key));
   }
 
+  async function validateCoupon() {
+    setCouponMessage(''); setCouponResult(null);
+    if (!couponCode.trim()) return setCouponMessage('Informe um cupom.');
+    try {
+      const response = await fetch(`${API_URL}/coupons/validate`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ storeSlug: STORE_SLUG, code: couponCode, customerPhone: checkout.phone, subtotal, serviceType: checkout.serviceType }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(Array.isArray(data.message)?data.message.join(', '):data.message);
+      setCouponResult(data); setCouponCode(data.code); setCouponMessage('Cupom aplicado com sucesso.');
+    } catch (e) { setCouponMessage(e instanceof Error ? e.message : 'Cupom inválido.'); }
+  }
+
   async function submitOrder(event: FormEvent) {
     event.preventDefault();
     if (cart.length === 0) return;
@@ -212,6 +226,7 @@ export default function HomePage() {
             complement: checkout.complement || undefined, district: checkout.district,
             city: checkout.city, state: checkout.state, reference: checkout.reference || undefined
           } : undefined,
+          couponCode: couponResult?.code || undefined,
           notes: checkout.notes || undefined,
           items: cart.map((item) => ({
             productId: item.productId, quantity: item.quantity, notes: item.notes || undefined,
@@ -222,6 +237,7 @@ export default function HomePage() {
       const data = await response.json();
       if (!response.ok) throw new Error(Array.isArray(data.message) ? data.message.join(', ') : data.message ?? 'Não foi possível criar o pedido.');
       setOrderResult({ orderNumber: data.orderNumber, total: data.total });
+      localStorage.setItem(`menucommerce.order.phone.${data.orderNumber}`, checkout.phone);
       setCart([]);
       localStorage.removeItem(CART_STORAGE_KEY);
       setCheckoutOpen(false);
@@ -238,7 +254,7 @@ export default function HomePage() {
   return <main className="menu-shell">
     <header className="menu-header">
       <div>
-        <span className="version">v0.4.1</span>
+        <span className="version">v0.5.0</span>
         <h1>{menu?.store.name ?? 'MenuCommerce'}</h1>
         <p>{menu?.store.description ?? 'Cardápio online responsivo'}</p>
       </div>
@@ -369,15 +385,16 @@ export default function HomePage() {
     {checkoutOpen && <div className="overlay" role="presentation" onMouseDown={() => setCheckoutOpen(false)}>
       <section className="modal checkout-modal" role="dialog" aria-modal="true" aria-label="Finalizar pedido" onMouseDown={(event) => event.stopPropagation()}>
         <button className="close" onClick={() => setCheckoutOpen(false)} aria-label="Fechar">×</button>
-        <span className="version">Checkout v0.4.1</span><h2>Identificação e atendimento</h2>
+        <span className="version">Checkout v0.5.0</span><h2>Identificação e atendimento</h2>
         <form onSubmit={submitOrder} className="checkout-form">
           <div className="two"><label>Nome<input required value={checkout.name} onChange={e=>setCheckout({...checkout,name:e.target.value})}/></label><label>WhatsApp<input required value={checkout.phone} onChange={e=>setCheckout({...checkout,phone:e.target.value})} placeholder="(12) 99999-9999"/></label></div>
           <label>E-mail opcional<input type="email" value={checkout.email} onChange={e=>setCheckout({...checkout,email:e.target.value})}/></label>
           <fieldset><legend>Como deseja receber?</legend><div className="service-options"><label className="option"><input type="radio" checked={checkout.serviceType==='PICKUP'} onChange={()=>setCheckout({...checkout,serviceType:'PICKUP'})}/><span>Retirada no local</span></label><label className="option"><input type="radio" checked={checkout.serviceType==='DELIVERY'} onChange={()=>setCheckout({...checkout,serviceType:'DELIVERY'})}/><span>Entrega</span><strong>+ {money(5)}</strong></label></div></fieldset>
           {checkout.serviceType==='DELIVERY' && <div className="address-fields"><div className="two"><label>CEP<input required value={checkout.postalCode} onChange={e=>setCheckout({...checkout,postalCode:e.target.value})}/></label><label>Estado<input required maxLength={2} value={checkout.state} onChange={e=>setCheckout({...checkout,state:e.target.value.toUpperCase()})}/></label></div><label>Rua<input required value={checkout.street} onChange={e=>setCheckout({...checkout,street:e.target.value})}/></label><div className="two"><label>Número<input required value={checkout.number} onChange={e=>setCheckout({...checkout,number:e.target.value})}/></label><label>Complemento<input value={checkout.complement} onChange={e=>setCheckout({...checkout,complement:e.target.value})}/></label></div><div className="two"><label>Bairro<input required value={checkout.district} onChange={e=>setCheckout({...checkout,district:e.target.value})}/></label><label>Cidade<input required value={checkout.city} onChange={e=>setCheckout({...checkout,city:e.target.value})}/></label></div><label>Referência<input value={checkout.reference} onChange={e=>setCheckout({...checkout,reference:e.target.value})}/></label></div>}
+          <fieldset><legend>Cupom de desconto</legend><div className="coupon-row"><input value={couponCode} onChange={e=>{setCouponCode(e.target.value.toUpperCase());setCouponResult(null)}} placeholder="Ex.: BEMVINDO10"/><button type="button" onClick={validateCoupon}>Aplicar</button></div>{couponMessage&&<small className={couponResult?'success-text':'error'}>{couponMessage}</small>}{couponResult&&<small>{couponResult.freeDelivery?'Frete grátis':`Desconto estimado: ${money(couponResult.discount)}`} {couponResult.description?`· ${couponResult.description}`:''}</small>}</fieldset>
           <label>Observações gerais<textarea maxLength={300} value={checkout.notes} onChange={e=>setCheckout({...checkout,notes:e.target.value})}/></label>
           {error && <p className="error">{error}</p>}
-          <div className="checkout-summary"><span>Subtotal calculado no navegador</span><strong>{money(subtotal)}</strong><small>O servidor recalculará produtos e adicionais antes de confirmar.</small></div>
+          <div className="checkout-summary"><span>Subtotal</span><strong>{money(subtotal)}</strong>{couponResult&&<><span>Desconto estimado</span><strong>- {money(couponResult.discount)}</strong></>}<small>O servidor validará novamente o cupom, produtos, adicionais, limites e total.</small></div>
           <button disabled={submitting}>{submitting ? 'Criando pedido...' : 'Confirmar pedido'}</button>
         </form>
       </section>

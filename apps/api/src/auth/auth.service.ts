@@ -22,7 +22,7 @@ export class AuthService {
     }
 
     return {
-      accessToken: await this.jwt.signAsync({ sub: user.id, email: user.email, role: user.role })
+      accessToken: await this.jwt.signAsync({ sub: user.id, email: user.email, role: user.role, companyId: user.companyId })
     };
   }
 }

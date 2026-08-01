@@ -7,3 +7,6 @@ dist
 coverage
 *.log
 apps/api/prisma/dev.db
+
+# Backups locais dos patches
+.hardening-backup-*

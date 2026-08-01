@@ -1,53 +1,30 @@
-;import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
-
-import { DatabaseModule } from '../database/database.module';
+import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
-    ConfigModule,
-    DatabaseModule,
-
+    PassportModule,
     JwtModule.registerAsync({
-      imports: [ConfigModule],
       inject: [ConfigService],
-
-      useFactory: (config: ConfigService): JwtModuleOptions => {
-        const secret = config.get<string>('JWT_SECRET');
-
-        if (!secret) {
-          throw new Error('JWT_SECRET não foi definido no arquivo .env');
+      useFactory: (config: ConfigService) => {
+        const expiresIn = Number(config.get<string>('JWT_EXPIRES_IN_SECONDS', '86400'));
+        if (!Number.isInteger(expiresIn) || expiresIn <= 0) {
+          throw new Error('JWT_EXPIRES_IN_SECONDS deve ser um número inteiro positivo.');
         }
-
-        const expiresIn = config.get<number>(
-          'JWT_EXPIRES_IN_SECONDS',
-          86400,
-        );
-
         return {
-          secret,
-          signOptions: {
-            expiresIn,
-          },
+          secret: config.getOrThrow<string>('JWT_SECRET'),
+          signOptions: { expiresIn }
         };
-      },
-    }),
+      }
+    })
   ],
-
   controllers: [AuthController],
-
-  providers: [
-    AuthService,
-    JwtStrategy,
-  ],
-
-  exports: [
-    AuthService,
-    JwtModule,
-  ],
+  providers: [AuthService, JwtStrategy],
+  exports: [JwtModule]
 })
 export class AuthModule {}

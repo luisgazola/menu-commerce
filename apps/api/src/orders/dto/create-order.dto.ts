@@ -33,5 +33,6 @@ export class CreateOrderDto {
   @IsEnum(ServiceTypeDto) serviceType!: ServiceTypeDto;
   @IsOptional() @ValidateNested() @Type(() => AddressDto) address?: AddressDto;
   @IsArray() @ArrayMinSize(1) @ValidateNested({ each: true }) @Type(() => OrderItemDto) items!: OrderItemDto[];
+  @IsOptional() @IsString() @MaxLength(30) couponCode?: string;
   @IsOptional() @IsString() @MaxLength(300) notes?: string;
 }
