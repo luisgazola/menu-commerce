@@ -10,3 +10,6 @@ apps/api/prisma/dev.db
 
 # Backups locais dos patches
 .hardening-backup-*
+
+# Backups locais de documentação
+.docs-backup-*
