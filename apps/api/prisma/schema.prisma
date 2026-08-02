@@ -60,6 +60,8 @@ model Store {
   logoUrl     String?
   bannerUrl   String?
   whatsapp    String?
+  whatsappEnabled Boolean @default(true)
+  whatsappMessageTemplate String?
   isOpen      Boolean      @default(true)
   status      RecordStatus @default(ACTIVE)
   categories  Category[]

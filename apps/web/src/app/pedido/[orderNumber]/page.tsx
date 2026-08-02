@@ -84,7 +84,7 @@ export default function OrderPage({ params }: { params: Promise<{ orderNumber: s
   return <main className="admin-shell">
     <a href="/">← Cardápio</a>
     <section className="card">
-      <span className="version">Acompanhamento seguro · v0.5.0</span>
+      <span className="version">Acompanhamento seguro · v0.6.0</span>
       <h1>Pedido #{orderNumber || '...'}</h1>
       {!order && <form onSubmit={track} className="tracking-form">
         <p>Informe o mesmo WhatsApp utilizado no checkout para consultar o pedido.</p>

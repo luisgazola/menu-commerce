@@ -66,6 +66,7 @@ export default function HomePage() {
   const [couponMessage, setCouponMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [orderResult, setOrderResult] = useState<{ orderNumber: string; total: string } | null>(null);
+  const [whatsappUrl, setWhatsappUrl] = useState('');
   const [checkout, setCheckout] = useState({ name: '', phone: '', email: '', serviceType: 'PICKUP', postalCode: '', street: '', number: '', complement: '', district: '', city: '', state: 'SP', reference: '', notes: '' });
 
   useEffect(() => {
@@ -238,6 +239,21 @@ export default function HomePage() {
       if (!response.ok) throw new Error(Array.isArray(data.message) ? data.message.join(', ') : data.message ?? 'Não foi possível criar o pedido.');
       setOrderResult({ orderNumber: data.orderNumber, total: data.total });
       localStorage.setItem(`menucommerce.order.phone.${data.orderNumber}`, checkout.phone);
+      try {
+        const whatsappResponse = await fetch(`${API_URL}/whatsapp/orders/message`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderNumber: data.orderNumber, phone: checkout.phone })
+        });
+        if (whatsappResponse.ok) {
+          const whatsappData = await whatsappResponse.json();
+          setWhatsappUrl(whatsappData.url);
+        } else {
+          setWhatsappUrl('');
+        }
+      } catch {
+        setWhatsappUrl('');
+      }
       setCart([]);
       localStorage.removeItem(CART_STORAGE_KEY);
       setCheckoutOpen(false);
@@ -254,7 +270,7 @@ export default function HomePage() {
   return <main className="menu-shell">
     <header className="menu-header">
       <div>
-        <span className="version">v0.5.0</span>
+        <span className="version">v0.6.0</span>
         <h1>{menu?.store.name ?? 'MenuCommerce'}</h1>
         <p>{menu?.store.description ?? 'Cardápio online responsivo'}</p>
       </div>
@@ -385,7 +401,7 @@ export default function HomePage() {
     {checkoutOpen && <div className="overlay" role="presentation" onMouseDown={() => setCheckoutOpen(false)}>
       <section className="modal checkout-modal" role="dialog" aria-modal="true" aria-label="Finalizar pedido" onMouseDown={(event) => event.stopPropagation()}>
         <button className="close" onClick={() => setCheckoutOpen(false)} aria-label="Fechar">×</button>
-        <span className="version">Checkout v0.5.0</span><h2>Identificação e atendimento</h2>
+        <span className="version">Checkout v0.6.0</span><h2>Identificação e atendimento</h2>
         <form onSubmit={submitOrder} className="checkout-form">
           <div className="two"><label>Nome<input required value={checkout.name} onChange={e=>setCheckout({...checkout,name:e.target.value})}/></label><label>WhatsApp<input required value={checkout.phone} onChange={e=>setCheckout({...checkout,phone:e.target.value})} placeholder="(12) 99999-9999"/></label></div>
           <label>E-mail opcional<input type="email" value={checkout.email} onChange={e=>setCheckout({...checkout,email:e.target.value})}/></label>
@@ -400,7 +416,7 @@ export default function HomePage() {
       </section>
     </div>}
 
-    {orderResult && <div className="overlay"><section className="modal order-success"><span className="version">Pedido confirmado</span><h2>Pedido #{orderResult.orderNumber}</h2><p>Total validado pelo servidor: <strong>{money(orderResult.total)}</strong></p><a className="order-link" href={`/pedido/${orderResult.orderNumber}`}>Acompanhar pedido</a><button onClick={()=>setOrderResult(null)}>Voltar ao cardápio</button></section></div>}
+    {orderResult && <div className="overlay"><section className="modal order-success"><span className="version">Pedido confirmado</span><h2>Pedido #{orderResult.orderNumber}</h2><p>Total validado pelo servidor: <strong>{money(orderResult.total)}</strong></p><a className="order-link" href={`/pedido/${orderResult.orderNumber}`}>Acompanhar pedido</a>{whatsappUrl && <a className="order-link" href={whatsappUrl} target="_blank" rel="noreferrer">Enviar pedido pelo WhatsApp</a>}<button onClick={()=>setOrderResult(null)}>Voltar ao cardápio</button></section></div>}
 
     {cart.length > 0 && !cartOpen && <button className="floating-cart" onClick={() => setCartOpen(true)}>
       <span>{totalQuantity} {totalQuantity === 1 ? 'item' : 'itens'}</span><strong>Ver carrinho · {money(subtotal)}</strong>
