@@ -205,7 +205,7 @@ export class OrdersService {
       `${String(date.getMonth() + 1).padStart(2, '0')}` +
       `${String(date.getDate()).padStart(2, '0')}`;
 
-    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${prefix}, 0))`;
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${prefix}, 0))`;
 
     const count = await tx.order.count({
       where: { orderNumber: { startsWith: `${prefix}-` } }

@@ -8,6 +8,7 @@ import { CatalogModule } from './catalog/catalog.module';
 import { StoreModule } from './store/store.module';
 import { OrdersModule } from './orders/orders.module';
 import { PromotionsModule } from './promotions/promotions.module';
+import { WhatsappModule } from './whatsapp/whatsapp.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { PromotionsModule } from './promotions/promotions.module';
     StoreModule,
     CatalogModule,
     OrdersModule,
-    PromotionsModule
+    PromotionsModule,
+    WhatsappModule
   ],
   controllers: [HealthController]
 })
