@@ -290,7 +290,7 @@ export default function OrdersAdmin() {
     <main className="admin-shell">
       <div className="admin-top">
         <div>
-          <span className="version">v0.6.0</span>
+          <span className="version">v0.7.0</span>
           <h1>Operação de pedidos</h1>
         </div>
 

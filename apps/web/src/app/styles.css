@@ -11,7 +11,7 @@ button,input,select,textarea { font: inherit; } button { border: 0; border-radiu
 @media(max-width:860px){.products{grid-template-columns:repeat(2,minmax(0,1fr));}.admin-grid{grid-template-columns:1fr;}}
 @media(max-width:600px){.menu-header,.admin-top{align-items:flex-start;flex-direction:column}.banner{min-height:230px;padding:22px}.products{grid-template-columns:1fr}.menu-shell,.admin-shell{width:min(100% - 20px,1180px)}.two{grid-template-columns:1fr}.product-image{min-height:220px}}
 
-/* Carrinho e personalização — v0.3.0 */
+/* Carrinho e personalização */
 .header-actions { display:flex; align-items:center; gap:10px; }
 .cart-button { display:flex; align-items:center; gap:9px; }
 .cart-button span { display:grid; place-items:center; min-width:24px; min-height:24px; padding:0 6px; border-radius:999px; background:#1d1725; }
@@ -61,7 +61,7 @@ fieldset>small { color:#a99fb3; margin-bottom:7px; }
   .floating-cart { flex-direction:column; align-items:stretch; gap:3px; text-align:left; }
 }
 
-/* Checkout e pedidos — v0.4.0 */
+/* Checkout e pedidos */
 .checkout-form,.address-fields { display:grid; gap:14px; }
 .checkout-modal { width:min(760px,100%); }
 .service-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
