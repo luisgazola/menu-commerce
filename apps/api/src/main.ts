@@ -12,7 +12,7 @@ async function bootstrap(): Promise<void> {
   const swaggerConfig = new DocumentBuilder()
     .setTitle('MenuCommerce API')
     .setDescription('API da plataforma MenuCommerce')
-    .setVersion('0.5.0')
+    .setVersion('0.7.0')
     .addBearerAuth()
     .build();
 
