@@ -10,6 +10,7 @@ import { OrdersModule } from './orders/orders.module';
 import { PromotionsModule } from './promotions/promotions.module';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
 
+import { PaymentsModule } from './payments/payments.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: ['../../.env', '.env'] }),
@@ -20,7 +21,8 @@ import { WhatsappModule } from './whatsapp/whatsapp.module';
     CatalogModule,
     OrdersModule,
     PromotionsModule,
-    WhatsappModule
+    WhatsappModule,
+    PaymentsModule,
   ],
   controllers: [HealthController]
 })

@@ -1,5 +1,16 @@
-import { Type } from 'class-transformer';
-import { ArrayMinSize, IsArray, IsEmail, IsEnum, IsInt, IsOptional, IsString, MaxLength, Min, ValidateNested } from 'class-validator';
+import {
+  Type } from 'class-transformer';
+import { ArrayMinSize,
+  IsArray,
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  MaxLength,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 
 enum ServiceTypeDto { DELIVERY = 'DELIVERY', PICKUP = 'PICKUP' }
 
@@ -27,6 +38,15 @@ class OrderItemDto {
   @IsArray() optionItemIds!: string[];
 }
 
+
+enum PaymentMethodDto {
+  PIX = 'PIX',
+  CREDIT_CARD = 'CREDIT_CARD',
+  DEBIT_CARD = 'DEBIT_CARD',
+  CASH = 'CASH',
+  CARD_ON_DELIVERY = 'CARD_ON_DELIVERY',
+}
+
 export class CreateOrderDto {
   @IsString() storeSlug!: string;
   @ValidateNested() @Type(() => CustomerDto) customer!: CustomerDto;
@@ -35,4 +55,8 @@ export class CreateOrderDto {
   @IsArray() @ArrayMinSize(1) @ValidateNested({ each: true }) @Type(() => OrderItemDto) items!: OrderItemDto[];
   @IsOptional() @IsString() @MaxLength(30) couponCode?: string;
   @IsOptional() @IsString() @MaxLength(300) notes?: string;
+  @IsOptional()
+  @IsEnum(PaymentMethodDto)
+  paymentMethod?: PaymentMethodDto;
+
 }

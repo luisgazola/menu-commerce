@@ -51,26 +51,27 @@ model Company {
 }
 
 model Store {
-  id          String       @id @default(uuid())
-  companyId   String
-  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  name        String
-  slug        String       @unique
-  description String?
-  logoUrl     String?
-  bannerUrl   String?
-  whatsapp    String?
-  whatsappEnabled Boolean @default(true)
+  id                      String                @id @default(uuid())
+  companyId               String
+  company                 Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name                    String
+  slug                    String                @unique
+  description             String?
+  logoUrl                 String?
+  bannerUrl               String?
+  whatsapp                String?
+  whatsappEnabled         Boolean               @default(true)
   whatsappMessageTemplate String?
-  isOpen      Boolean      @default(true)
-  status      RecordStatus @default(ACTIVE)
-  categories  Category[]
-  products    Product[]
-  orders      Order[]
-  coupons     Coupon[]
-  promotions  Promotion[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  isOpen                  Boolean               @default(true)
+  status                  RecordStatus          @default(ACTIVE)
+  categories              Category[]
+  products                Product[]
+  orders                  Order[]
+  coupons                 Coupon[]
+  promotions              Promotion[]
+  paymentConfig           PaymentGatewayConfig?
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
 
   @@index([companyId])
 }
@@ -107,23 +108,23 @@ model Category {
 }
 
 model Product {
-  id               String       @id @default(uuid())
+  id               String               @id @default(uuid())
   storeId          String
-  store            Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  store            Store                @relation(fields: [storeId], references: [id], onDelete: Cascade)
   categoryId       String
-  category         Category     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  category         Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   name             String
   slug             String
   description      String?
-  price            Decimal      @db.Decimal(10, 2)
-  promotionalPrice Decimal?     @db.Decimal(10, 2)
+  price            Decimal              @db.Decimal(10, 2)
+  promotionalPrice Decimal?             @db.Decimal(10, 2)
   imageUrl         String?
   preparationTime  Int?
-  featured         Boolean      @default(false)
-  status           RecordStatus @default(ACTIVE)
+  featured         Boolean              @default(false)
+  status           RecordStatus         @default(ACTIVE)
   optionGroups     ProductOptionGroup[]
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
 
   @@unique([storeId, slug])
   @@index([storeId, categoryId, status])
@@ -131,32 +132,32 @@ model Product {
 }
 
 model ProductOptionGroup {
-  id               String            @id @default(uuid())
+  id               String              @id @default(uuid())
   productId        String
-  product          Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product          Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
   name             String
-  type             ProductOptionType @default(SINGLE)
-  required         Boolean           @default(false)
-  minimumSelection Int               @default(0)
-  maximumSelection Int               @default(1)
-  displayOrder     Int               @default(0)
+  type             ProductOptionType   @default(SINGLE)
+  required         Boolean             @default(false)
+  minimumSelection Int                 @default(0)
+  maximumSelection Int                 @default(1)
+  displayOrder     Int                 @default(0)
   items            ProductOptionItem[]
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
 
   @@index([productId, displayOrder])
 }
 
 model ProductOptionItem {
-  id           String       @id @default(uuid())
-  groupId      String
-  group        ProductOptionGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  name         String
-  additionalPrice Decimal   @default(0) @db.Decimal(10, 2)
-  displayOrder Int          @default(0)
-  status       RecordStatus @default(ACTIVE)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id              String             @id @default(uuid())
+  groupId         String
+  group           ProductOptionGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  name            String
+  additionalPrice Decimal            @default(0) @db.Decimal(10, 2)
+  displayOrder    Int                @default(0)
+  status          RecordStatus       @default(ACTIVE)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 
   @@index([groupId, displayOrder, status])
 }
@@ -164,6 +165,30 @@ model ProductOptionItem {
 enum ServiceType {
   DELIVERY
   PICKUP
+}
+
+enum PaymentMethod {
+  PIX
+  CREDIT_CARD
+  DEBIT_CARD
+  CASH
+  CARD_ON_DELIVERY
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  APPROVED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  MOCK
+  MERCADO_PAGO
+  PAGBANK
+  STRIPE
 }
 
 enum OrderStatus {
@@ -207,26 +232,27 @@ model Address {
 }
 
 model Order {
-  id          String       @id @default(uuid())
+  id          String               @id @default(uuid())
   storeId     String
-  store       Store        @relation(fields: [storeId], references: [id], onDelete: Restrict)
+  store       Store                @relation(fields: [storeId], references: [id], onDelete: Restrict)
   customerId  String
-  customer    Customer     @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  customer    Customer             @relation(fields: [customerId], references: [id], onDelete: Restrict)
   addressId   String?
-  address     Address?     @relation(fields: [addressId], references: [id], onDelete: SetNull)
-  orderNumber String       @unique
+  address     Address?             @relation(fields: [addressId], references: [id], onDelete: SetNull)
+  orderNumber String               @unique
   serviceType ServiceType
-  status      OrderStatus  @default(RECEIVED)
-  subtotal    Decimal      @db.Decimal(10, 2)
-  deliveryFee Decimal      @default(0) @db.Decimal(10, 2)
-  discount    Decimal      @default(0) @db.Decimal(10, 2)
+  status      OrderStatus          @default(RECEIVED)
+  subtotal    Decimal              @db.Decimal(10, 2)
+  deliveryFee Decimal              @default(0) @db.Decimal(10, 2)
+  discount    Decimal              @default(0) @db.Decimal(10, 2)
   couponCode  String?
-  total       Decimal      @db.Decimal(10, 2)
+  total       Decimal              @db.Decimal(10, 2)
   notes       String?
   items       OrderItem[]
   statusLog   OrderStatusHistory[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  payments    Payment[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
 
   @@index([storeId, status, createdAt])
   @@index([customerId, createdAt])
@@ -238,13 +264,13 @@ model OrderItem {
   order               Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId           String
   productNameSnapshot String
-  unitPrice            Decimal  @db.Decimal(10, 2)
-  quantity             Int
-  optionsTotal         Decimal  @default(0) @db.Decimal(10, 2)
-  totalPrice           Decimal  @db.Decimal(10, 2)
-  notes                String?
-  options              Json
-  createdAt            DateTime @default(now())
+  unitPrice           Decimal  @db.Decimal(10, 2)
+  quantity            Int
+  optionsTotal        Decimal  @default(0) @db.Decimal(10, 2)
+  totalPrice          Decimal  @db.Decimal(10, 2)
+  notes               String?
+  options             Json
+  createdAt           DateTime @default(now())
 
   @@index([orderId])
 }
@@ -261,38 +287,38 @@ model OrderStatusHistory {
 }
 
 model Coupon {
-  id                String       @id @default(uuid())
-  storeId           String
-  store             Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  code              String
-  description       String?
-  discountType      DiscountType
-  discountValue     Decimal      @default(0) @db.Decimal(10, 2)
-  minimumOrder      Decimal      @default(0) @db.Decimal(10, 2)
-  maximumDiscount   Decimal?     @db.Decimal(10, 2)
-  startsAt          DateTime
-  endsAt            DateTime
-  usageLimit        Int?
-  usagePerCustomer  Int?
-  firstOrderOnly    Boolean      @default(false)
-  combinable        Boolean      @default(false)
-  status            RecordStatus @default(ACTIVE)
-  usages            CouponUsage[]
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
+  id               String        @id @default(uuid())
+  storeId          String
+  store            Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  code             String
+  description      String?
+  discountType     DiscountType
+  discountValue    Decimal       @default(0) @db.Decimal(10, 2)
+  minimumOrder     Decimal       @default(0) @db.Decimal(10, 2)
+  maximumDiscount  Decimal?      @db.Decimal(10, 2)
+  startsAt         DateTime
+  endsAt           DateTime
+  usageLimit       Int?
+  usagePerCustomer Int?
+  firstOrderOnly   Boolean       @default(false)
+  combinable       Boolean       @default(false)
+  status           RecordStatus  @default(ACTIVE)
+  usages           CouponUsage[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
   @@unique([storeId, code])
   @@index([storeId, status, startsAt, endsAt])
 }
 
 model CouponUsage {
-  id          String   @id @default(uuid())
-  couponId    String
-  coupon      Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
-  orderId     String   @unique
+  id            String   @id @default(uuid())
+  couponId      String
+  coupon        Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  orderId       String   @unique
   customerPhone String
-  discount    Decimal  @db.Decimal(10, 2)
-  createdAt   DateTime @default(now())
+  discount      Decimal  @db.Decimal(10, 2)
+  createdAt     DateTime @default(now())
 
   @@index([couponId, customerPhone])
 }
@@ -317,4 +343,53 @@ model Promotion {
   updatedAt       DateTime       @updatedAt
 
   @@index([storeId, status, startsAt, endsAt, priority])
+}
+
+model PaymentGatewayConfig {
+  id                    String          @id @default(uuid())
+  storeId               String          @unique
+  store                 Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  provider              PaymentProvider @default(MOCK)
+  enabled               Boolean         @default(false)
+  sandbox               Boolean         @default(true)
+  publicKey             String?
+  pixEnabled            Boolean         @default(false)
+  creditCardEnabled     Boolean         @default(false)
+  debitCardEnabled      Boolean         @default(false)
+  cashEnabled           Boolean         @default(true)
+  cardOnDeliveryEnabled Boolean         @default(true)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+}
+
+model Payment {
+  id                    String          @id @default(uuid())
+  orderId               String
+  order                 Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  provider              PaymentProvider @default(MOCK)
+  method                PaymentMethod
+  status                PaymentStatus   @default(PENDING)
+  amount                Decimal         @db.Decimal(10, 2)
+  providerTransactionId String?         @unique
+  pixCode               String?
+  pixQrCodeUrl          String?
+  failureReason         String?
+  approvedAt            DateTime?
+  refundedAt            DateTime?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  @@index([orderId, status])
+}
+
+model PaymentEvent {
+  id         String          @id @default(uuid())
+  provider   PaymentProvider
+  externalId String?
+  eventType  String
+  payload    Json
+  processed  Boolean         @default(false)
+  createdAt  DateTime        @default(now())
+
+  @@index([provider, externalId])
 }

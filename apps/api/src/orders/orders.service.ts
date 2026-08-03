@@ -4,7 +4,14 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { OrderStatus, Prisma, RecordStatus, ServiceType } from '@prisma/client';
+import { OrderStatus,
+  Prisma,
+  RecordStatus,
+  ServiceType,
+  PaymentMethod,
+  PaymentProvider,
+  PaymentStatus,
+} from '@prisma/client';
 import { JwtPayload } from '../auth/jwt-payload.interface';
 import { PrismaService } from '../database/prisma.service';
 import { PromotionsService } from '../promotions/promotions.service';
@@ -91,6 +98,47 @@ export class OrdersService {
 
     const customerPhone = digitsOnly(dto.customer.phone);
 
+
+    const paymentMethod =
+      (dto.paymentMethod ??
+        PaymentMethod.CASH) as PaymentMethod;
+
+    const paymentConfig =
+      await this.prisma.paymentGatewayConfig.findUnique({
+        where: {
+          storeId: store.id,
+        },
+      });
+
+    const paymentEnabled: Record<
+      PaymentMethod,
+      boolean
+    > = {
+      [PaymentMethod.PIX]:
+        Boolean(paymentConfig?.enabled) &&
+        Boolean(paymentConfig?.pixEnabled),
+
+      [PaymentMethod.CREDIT_CARD]:
+        Boolean(paymentConfig?.enabled) &&
+        Boolean(paymentConfig?.creditCardEnabled),
+
+      [PaymentMethod.DEBIT_CARD]:
+        Boolean(paymentConfig?.enabled) &&
+        Boolean(paymentConfig?.debitCardEnabled),
+
+      [PaymentMethod.CASH]:
+        paymentConfig?.cashEnabled ?? true,
+
+      [PaymentMethod.CARD_ON_DELIVERY]:
+        paymentConfig?.cardOnDeliveryEnabled ?? true,
+    };
+
+    if (!paymentEnabled[paymentMethod]) {
+      throw new BadRequestException(
+        'Forma de pagamento indisponível para esta loja.',
+      );
+    }
+
     const result = await this.prisma.$transaction(async (tx) => {
       let deliveryFee = dto.serviceType === 'DELIVERY' ? decimal(5) : decimal(0);
       let discount = decimal(0);
@@ -167,6 +215,18 @@ export class OrdersService {
           },
           statusLog: {
             create: { status: OrderStatus.RECEIVED, note: 'Pedido criado pelo cardápio.' }
+          },
+          payments: {
+            create: {
+              provider: PaymentProvider.MOCK,
+              method: paymentMethod,
+              status:
+                paymentMethod === PaymentMethod.CASH ||
+                paymentMethod === PaymentMethod.CARD_ON_DELIVERY
+                  ? PaymentStatus.PENDING
+                  : PaymentStatus.PROCESSING,
+              amount: total,
+            },
           }
         }
       });
@@ -273,6 +333,8 @@ export class OrdersService {
 
   async updateStatus(user: JwtPayload, id: string, dto: UpdateOrderStatusDto) {
     const companyId = this.requireCompany(user);
+
+
 
     return this.prisma.$transaction(async (tx) => {
       const order = await tx.order.findFirst({
